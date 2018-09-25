@@ -1,0 +1,12 @@
+Phase 1
+	Algorithms
+		DFS
+		BFS
+		A*
+		
+	MapGenerator
+	
+	Profiler
+		Nodes visited
+		Length of shortest path
+		max size of fringe
