@@ -2,16 +2,19 @@ import turtle
 import math
 
 wn = turtle.Screen()
-wn.bgcolor("black")
+wn.bgcolor("light green")
 wn.title("A MAZE GAME")
 wn.setup(700,700)
+
+
+turtle.register_shape("wall.gif")
 
 # PEN
 class Pen(turtle.Turtle):
     def __init__(self):
         turtle.Turtle.__init__(self)
         self.shape("square")
-        self.color("white")
+        self.color("green")
         self.penup()
         self.speed(0)
 
@@ -54,16 +57,20 @@ class Player(turtle.Turtle):
             self.goto(move_to_x, move_to_y)  
 
 class Finish(turtle.Turtle):
-    #def __init__(self, x, y):
-    def __init__(self):
+     #def __init__(self, x, y):
+     def __init__(self):
        turtle.Turtle.__init__(self)
        self.shape("square")
        self.color("red")
        self.penup()
        self.speed(0)
        #self.goto(x,y)
+       
 
-        
+   # def destroy(self):
+    #self.goto(2000,2000)
+    #     self.hideturtle()
+         
 # CREATE LEVELS
 
 levels=[""]
@@ -116,6 +123,7 @@ def setup_maze(level):
             #check if it is an X(wall)
             if character == "X":
                 pen.goto(screen_x, screen_y)
+                pen.shape("wall.gif")
                 pen.stamp()
                 walls.append((screen_x, screen_y))
             # check if it is a P
@@ -156,8 +164,11 @@ wn.tracer(0)
 
 while True:
     if player.xcor() == finish.xcor() and player.ycor() == finish.ycor():
+       # wn.popup("path found")
         print("PATH FOUND")
-    #pass
+
+
+    #update screen
     wn.update()
 
     
