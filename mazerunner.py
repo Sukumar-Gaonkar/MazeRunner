@@ -12,6 +12,7 @@ Created on Thu Sep 27 00:56:23 2018
 @author: Karra's
 """
 
+import mazee
 import random
 import math
 import heapq
@@ -20,6 +21,7 @@ from queue import Queue
 import numpy as np
 
 class SearchAlgorithms:
+
     def DFS(self, arenaMap):
         # TODO: Implement Depth First Search
         """
@@ -34,6 +36,7 @@ class SearchAlgorithms:
                 double: Time taken
             ]
             If a path is not found, then it returns : [-1, [-1], NodesVisited, MaxFringe]
+
         """
         pass
 
@@ -73,17 +76,17 @@ class SearchAlgorithms:
         q.put((row,col))
         while not q.empty():
             row, col = q.get()
-            if row==len(arenaMap)-1 and col==len(arenaMap)-1: 
+            if row==len(arenaMap)-1 and col==len(arenaMap)-1:
                 break
             if col+1 < len(arenaMap) and arenaMap[row][col+1] == 1 and visited[row][col+1] ==0 :
                 q.put((row, col+1))
                 visited[row][col+1]=1
-                nVisitedNode=nVisitedNode+1             
+                nVisitedNode=nVisitedNode+1
                 pathmap[row][col+1] = 2
                 maxFringe = max(maxFringe, q.qsize())
                # print(maxFringe)
                # print(nVisitedNode)
-                if row==len(arenaMap)-1 and col+1 ==len(arenaMap)-1: 
+                if row==len(arenaMap)-1 and col+1 ==len(arenaMap)-1:
                     break
                 #print(1)
             if row+1 < len(arenaMap) and arenaMap[row+1][col] == 1 and visited[row+1][col] ==0:
@@ -94,7 +97,7 @@ class SearchAlgorithms:
                 maxFringe = max(maxFringe, q.qsize())
                # print(maxFringe)
               #  print(nVisitedNode)
-                if row+1==len(arenaMap)-1 and col ==len(arenaMap)-1: 
+                if row+1==len(arenaMap)-1 and col ==len(arenaMap)-1:
                     break
               #  print(1)
             if 0 <= col-1 and arenaMap[row][col-1] == 1 and visited[row][col-1] ==0:
@@ -105,7 +108,7 @@ class SearchAlgorithms:
                 maxFringe = max(maxFringe, q.qsize())
               #  print(maxFringe)
               #  print(nVisitedNode)
-                if row==len(arenaMap)-1 and col-1 ==len(arenaMap)-1: 
+                if row==len(arenaMap)-1 and col-1 ==len(arenaMap)-1:
                     break
               #  print(1)
             if 0 <= row-1 and arenaMap[row-1][col] == 1 and visited[row-1][col] ==0:
@@ -116,11 +119,11 @@ class SearchAlgorithms:
                 maxFringe = max(maxFringe, q.qsize())
              #   print(maxFringe)
              #   print(nVisitedNode)
-                if row-1==len(arenaMap)-1 and col ==len(arenaMap)-1: 
+                if row-1==len(arenaMap)-1 and col ==len(arenaMap)-1:
                     break
             #    print(1)
-                
-                
+
+
         row,col=len(arenaMap)-1,len(arenaMap)-1
         var=np.int(pathmap[row][col])
         if var==0:
@@ -132,17 +135,17 @@ class SearchAlgorithms:
                     break
              #   print((row, col), 'go', var)
                 path.append(np.int(var))
-                
+
                 shortestpathlength=shortestpathlength+1
                 r, c = step[var]
                 row += r
                 col += c
                 var = pathmap[row][col]
-            #print(shortestpathlength,nVisitedNode,time.time() - startTime) 
+            #print(shortestpathlength,nVisitedNode,time.time() - startTime)
             #print(path[::-1])
-            return  [shortestpathlength,path[::-1],nVisitedNode,maxFringe,time.time() - startTime]    
-                
-                
+            return  [shortestpathlength,path[::-1],nVisitedNode,maxFringe,time.time() - startTime]
+
+
         #pass
 
     def AStar(self, arenaMap, heuristicFun):
@@ -159,15 +162,19 @@ class SearchAlgorithms:
                 double: Time taken
             ]
             If a path is not found, then it returns : [-1, [-1], NodesVisited, MaxFringe]
+
         """
 
         startTime = time.time()
-        startNode = [0, 0]
+
         nVisitedNode, maxFringe, pathLength = 0, 0, 0
         path = []
 
         # Each node in the PriorityQueue is a tuple of the format (priority, [row,column], [<path from source>])
         priorityQueue = []
+        startNode = [0,0]
+        endNode = [len(arenaMap)-1,len(arenaMap)-1]
+        baseHeuristic = heuristicFun(self, startNode, endNode)
         heapq.heappush(priorityQueue, (0, startNode, []))
 
         while len(priorityQueue) > 0:
@@ -180,23 +187,31 @@ class SearchAlgorithms:
 
                 # Move to the right if possible
                 if currNode[1][1] < len(arenaMap) - 1 and arenaMap[currNode[1][0]][currNode[1][1] + 1] == 0:
-                    heapq.heappush(priorityQueue,
-                                   (currNode[0] + 1, [currNode[1][0], currNode[1][1] + 1], currNode[2] + [2]))    # 2=right
+                    rightNode = [currNode[1][0], currNode[1][1] + 1]
+                    heuristic = len(currNode[2]) + heuristicFun(self, rightNode, endNode)
+                    if len(currNode[2]) == 0 or currNode[2][-1] != 4:
+                        heapq.heappush(priorityQueue, (heuristic, rightNode, currNode[2] + [2]))    # 2=right
 
                 # Move to down if possible
                 if currNode[1][0] < len(arenaMap) - 1 and arenaMap[currNode[1][0] + 1][currNode[1][1]] == 0:
-                    heapq.heappush(priorityQueue,
-                                   (currNode[0] + 1, [currNode[1][0] + 1, currNode[1][1]], currNode[2] + [3]))   # 3=down
+                    downNode = [currNode[1][0] + 1, currNode[1][1]]
+                    heuristic = len(currNode[2]) + heuristicFun(self, downNode,endNode)
+                    if len(currNode[2]) == 0 or currNode[2][-1] != 1:
+                        heapq.heappush(priorityQueue, (heuristic, downNode, currNode[2] + [3]))   # 3=down
 
                 # Move to the left if possible
                 if currNode[1][1] > 0 and arenaMap[currNode[1][0]][currNode[1][1] - 1] == 0:
-                    heapq.heappush(priorityQueue,
-                                   (currNode[0] + 1, [currNode[1][0], currNode[1][1] - 1], currNode[2] + [4]))   # 4=left
+                    leftNode = [currNode[1][0], currNode[1][1] - 1]
+                    heuristic = len(currNode[2]) + heuristicFun(self, leftNode,endNode)
+                    if len(currNode[2]) == 0 or currNode[2][-1] != 2:
+                        heapq.heappush(priorityQueue, (heuristic, leftNode, currNode[2] + [4]))   # 4=left
 
                 # Move to up if possible
                 if currNode[1][0] > 0 and arenaMap[currNode[1][0] - 1][currNode[1][1]] == 0:
-                    heapq.heappush(priorityQueue,
-                                   (currNode[0] + 1, [currNode[1][0] - 1, currNode[1][1]], currNode[2] + [1]))   # 1=up
+                    upNode = [currNode[1][0] - 1, currNode[1][1]]
+                    heuristic = len(currNode[2]) + heuristicFun(self, upNode, endNode)
+                    if len(currNode[2]) == 0 or currNode[2][-1] != 3:
+                        heapq.heappush(priorityQueue, (heuristic, upNode, currNode[2] + [1]))   # 1=up
 
                 maxFringe = max(maxFringe, len(priorityQueue))
 
@@ -209,6 +224,7 @@ class SearchAlgorithms:
             Parameters:
                 src ([r,c]) : [r,c] indicate the location of the first element
                 dest ([r,c]) : [r,c] indicate the location of the second element
+
             Returns:
                 int : Euclidean Distance between 'sc' and 'dset'
         """
@@ -220,6 +236,7 @@ class SearchAlgorithms:
             Parameters:
                 src ([r,c]) : [r,c] indicate the location of the first element
                 dest ([r,c]) : [r,c] indicate the location of the second element
+
             Returns:
                 int : Manhattan Distance between 'sc' and 'dset'
         """
@@ -250,25 +267,31 @@ class GameMap:
         pass
 
     def drawMap(self, arenaMap):
-        print("#" * (len(arenaMap) + 2))
-        for row in arenaMap:
-            print("#", end="")
-            for cell in row:
-                print(cell, end="")
-            print("#")
-
-        print("#" * (len(arenaMap) + 2))
+        mazee.setup_maze(arenaMap)
+        pass
 
 
 arenaMap = GameMap().genMapWithProb(4, 0.3)
+# arenaMap = [[0,0,1,0],[0,0,1,0],[1,0,1,0],[0,1,0,0]]      # Negative Map
+# arenaMap = [[0,1,0,0],[0,0,0,1],[0,1,0,0],[0,0,0,0]]      # Positive Map
 GameMap().drawMap(arenaMap)
 
 print("Numbers in 'Path' indicate directions travelled\n1=Up,2=Right,3=Down,4=Left\n")
-'''
+
 print("A* - Euclidean Distance")
 print("ShortestPath: {0[0]}  Path: {0[1]}\nNodesVisited: {0[2]}  MaxFringe: {0[3]}  Time: {0[4]}s".format(SearchAlgorithms().AStar(arenaMap, SearchAlgorithms.euclideanDistance)))
 print("\nA* - Manhattan Distance")
 print("ShortestPath: {0[0]}  Path: {0[1]}\nNodesVisited: {0[2]}  MaxFringe: {0[3]}  Time: {0[4]}s".format(SearchAlgorithms().AStar(arenaMap, SearchAlgorithms.manhattanDistance)))
-'''
 
-print("ShortestPath: {0[0]}  Path: {0[1]}\nNodesVisited: {0[2]}  MaxFringe: {0[3]}  Time: {0[4]}s".format(SearchAlgorithms().BFS(arenaMap)))
+# print("ShortestPath: {0[0]}  Path: {0[1]}\nNodesVisited: {0[2]}  MaxFringe: {0[3]}  Time: {0[4]}s".format(SearchAlgorithms().BFS(arenaMap)))
+
+
+"""
+Failed For
+    #######
+    #00011#
+    #10001#
+    #01111#
+    #00000#
+    #00000#
+"""
