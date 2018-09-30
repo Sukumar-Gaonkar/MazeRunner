@@ -1,8 +1,23 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Sep 27 10:30:11 2018
+
+@author: Karra's
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Sep 27 00:56:23 2018
+
+@author: Karra's
+"""
+
 import random
 import math
 import heapq
 import time
-
+from queue import Queue
+import numpy as np
 
 class SearchAlgorithms:
     def DFS(self, arenaMap):
@@ -19,7 +34,6 @@ class SearchAlgorithms:
                 double: Time taken
             ]
             If a path is not found, then it returns : [-1, [-1], NodesVisited, MaxFringe]
-
         """
         pass
 
@@ -37,9 +51,99 @@ class SearchAlgorithms:
                 double: Time taken
             ]
             If a path is not found, then it returns : [-1, [-1], NodesVisited, MaxFringe]
-
         """
-        pass
+        startTime = time.time()
+        startNode = [0, 0]
+        end=[len(arenaMap)-1,len(arenaMap)-1]
+        nVisitedNode, maxFringe, pathLength = 0, 0, 0
+        visited = []
+        path=[]
+        nodes_visited=0
+        maxFringe=0
+        shortestpathlength=-1
+        #pathmap = list(map(list, arenaMap))
+        pathmap = np.zeros((len(arenaMap),len(arenaMap)))
+        visited=np.zeros((len(arenaMap),len(arenaMap)))
+        arenaMap[len(arenaMap)-1][len(arenaMap)-1]=1
+      #  pathmap.fill(0)
+        q=Queue()
+        row=0
+        col=0
+        visited[0][0]=1
+        q.put((row,col))
+        while not q.empty():
+            row, col = q.get()
+            if row==len(arenaMap)-1 and col==len(arenaMap)-1: 
+                break
+            if col+1 < len(arenaMap) and arenaMap[row][col+1] == 1 and visited[row][col+1] ==0 :
+                q.put((row, col+1))
+                visited[row][col+1]=1
+                nVisitedNode=nVisitedNode+1             
+                pathmap[row][col+1] = 2
+                maxFringe = max(maxFringe, q.qsize())
+               # print(maxFringe)
+               # print(nVisitedNode)
+                if row==len(arenaMap)-1 and col+1 ==len(arenaMap)-1: 
+                    break
+                #print(1)
+            if row+1 < len(arenaMap) and arenaMap[row+1][col] == 1 and visited[row+1][col] ==0:
+                q.put((row+1, col))
+                visited[row+1][col]=1
+                nVisitedNode=nVisitedNode+1
+                pathmap[row+1][col] = 3
+                maxFringe = max(maxFringe, q.qsize())
+               # print(maxFringe)
+              #  print(nVisitedNode)
+                if row+1==len(arenaMap)-1 and col ==len(arenaMap)-1: 
+                    break
+              #  print(1)
+            if 0 <= col-1 and arenaMap[row][col-1] == 1 and visited[row][col-1] ==0:
+                q.put((row, col-1))
+                visited[row][col-1]=1
+                pathmap[row][col-1] = 4
+                nVisitedNode=nVisitedNode+1
+                maxFringe = max(maxFringe, q.qsize())
+              #  print(maxFringe)
+              #  print(nVisitedNode)
+                if row==len(arenaMap)-1 and col-1 ==len(arenaMap)-1: 
+                    break
+              #  print(1)
+            if 0 <= row-1 and arenaMap[row-1][col] == 1 and visited[row-1][col] ==0:
+                q.put((row-1, col))
+                visited[row-1][col]=1
+                pathmap[row-1][col] = 1
+                nVisitedNode=nVisitedNode+1
+                maxFringe = max(maxFringe, q.qsize())
+             #   print(maxFringe)
+             #   print(nVisitedNode)
+                if row-1==len(arenaMap)-1 and col ==len(arenaMap)-1: 
+                    break
+            #    print(1)
+                
+                
+        row,col=len(arenaMap)-1,len(arenaMap)-1
+        var=np.int(pathmap[row][col])
+        if var==0:
+            return[-1, [-1], nodes_visited, maxFringe, time.time() - startTime]
+        else:
+            step = {3: (-1, 0), 1: (1, 0), 4: (0, 1), 2: (0, -1)}
+            while True:
+                if row==0 and col==0:
+                    break
+             #   print((row, col), 'go', var)
+                path.append(np.int(var))
+                
+                shortestpathlength=shortestpathlength+1
+                r, c = step[var]
+                row += r
+                col += c
+                var = pathmap[row][col]
+            #print(shortestpathlength,nVisitedNode,time.time() - startTime) 
+            #print(path[::-1])
+            return  [shortestpathlength,path[::-1],nVisitedNode,maxFringe,time.time() - startTime]    
+                
+                
+        #pass
 
     def AStar(self, arenaMap, heuristicFun):
         """
@@ -55,7 +159,6 @@ class SearchAlgorithms:
                 double: Time taken
             ]
             If a path is not found, then it returns : [-1, [-1], NodesVisited, MaxFringe]
-
         """
 
         startTime = time.time()
@@ -106,7 +209,6 @@ class SearchAlgorithms:
             Parameters:
                 src ([r,c]) : [r,c] indicate the location of the first element
                 dest ([r,c]) : [r,c] indicate the location of the second element
-
             Returns:
                 int : Euclidean Distance between 'sc' and 'dset'
         """
@@ -118,7 +220,6 @@ class SearchAlgorithms:
             Parameters:
                 src ([r,c]) : [r,c] indicate the location of the first element
                 dest ([r,c]) : [r,c] indicate the location of the second element
-
             Returns:
                 int : Manhattan Distance between 'sc' and 'dset'
         """
@@ -163,8 +264,11 @@ arenaMap = GameMap().genMapWithProb(4, 0.3)
 GameMap().drawMap(arenaMap)
 
 print("Numbers in 'Path' indicate directions travelled\n1=Up,2=Right,3=Down,4=Left\n")
-
+'''
 print("A* - Euclidean Distance")
 print("ShortestPath: {0[0]}  Path: {0[1]}\nNodesVisited: {0[2]}  MaxFringe: {0[3]}  Time: {0[4]}s".format(SearchAlgorithms().AStar(arenaMap, SearchAlgorithms.euclideanDistance)))
 print("\nA* - Manhattan Distance")
 print("ShortestPath: {0[0]}  Path: {0[1]}\nNodesVisited: {0[2]}  MaxFringe: {0[3]}  Time: {0[4]}s".format(SearchAlgorithms().AStar(arenaMap, SearchAlgorithms.manhattanDistance)))
+'''
+
+print("ShortestPath: {0[0]}  Path: {0[1]}\nNodesVisited: {0[2]}  MaxFringe: {0[3]}  Time: {0[4]}s".format(SearchAlgorithms().BFS(arenaMap)))
