@@ -1,16 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Sep 27 10:30:11 2018
-
-@author: Karra's
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Sep 27 00:56:23 2018
-
-@author: Karra's
-"""
 
 import mazee
 import random
@@ -145,9 +132,6 @@ class SearchAlgorithms:
             #print(path[::-1])
             return  [shortestpathlength,path[::-1],nVisitedNode,maxFringe,time.time() - startTime]
 
-
-        #pass
-
     def AStar(self, arenaMap, heuristicFun):
         """
             Parameters:
@@ -166,58 +150,56 @@ class SearchAlgorithms:
         """
 
         startTime = time.time()
-
-        nVisitedNode, maxFringe, pathLength = 0, 0, 0
+        visitedNodes = set()
+        maxFringe, pathLength = 0, 0
         path = []
 
         # Each node in the PriorityQueue is a tuple of the format (priority, [row,column], [<path from source>])
         priorityQueue = []
         startNode = [0,0]
         endNode = [len(arenaMap)-1,len(arenaMap)-1]
-        baseHeuristic = heuristicFun(self, startNode, endNode)
         heapq.heappush(priorityQueue, (0, startNode, []))
 
         while len(priorityQueue) > 0:
             currNode = heapq.heappop(priorityQueue)
+            visitedNodes.add(tuple(currNode[1]))
             # print(currNode[1])
             if currNode[1][0] == len(arenaMap) - 1 and currNode[1][1] == len(arenaMap) - 1:
-                return [len(currNode[2]), currNode[2], nVisitedNode, maxFringe, time.time() - startTime]
+                return [len(currNode[2]), currNode[2], len(visitedNodes), maxFringe, time.time() - startTime]
             else:
-                nVisitedNode += 1
-
                 # Move to the right if possible
                 if currNode[1][1] < len(arenaMap) - 1 and arenaMap[currNode[1][0]][currNode[1][1] + 1] == 0:
                     rightNode = [currNode[1][0], currNode[1][1] + 1]
                     heuristic = len(currNode[2]) + heuristicFun(self, rightNode, endNode)
-                    if len(currNode[2]) == 0 or currNode[2][-1] != 4:
+                    if tuple(rightNode) not in visitedNodes:
                         heapq.heappush(priorityQueue, (heuristic, rightNode, currNode[2] + [2]))    # 2=right
 
                 # Move to down if possible
                 if currNode[1][0] < len(arenaMap) - 1 and arenaMap[currNode[1][0] + 1][currNode[1][1]] == 0:
                     downNode = [currNode[1][0] + 1, currNode[1][1]]
                     heuristic = len(currNode[2]) + heuristicFun(self, downNode,endNode)
-                    if len(currNode[2]) == 0 or currNode[2][-1] != 1:
+                    if tuple(downNode) not in visitedNodes:
                         heapq.heappush(priorityQueue, (heuristic, downNode, currNode[2] + [3]))   # 3=down
 
                 # Move to the left if possible
                 if currNode[1][1] > 0 and arenaMap[currNode[1][0]][currNode[1][1] - 1] == 0:
                     leftNode = [currNode[1][0], currNode[1][1] - 1]
                     heuristic = len(currNode[2]) + heuristicFun(self, leftNode,endNode)
-                    if len(currNode[2]) == 0 or currNode[2][-1] != 2:
+                    if tuple(leftNode) not in visitedNodes:
                         heapq.heappush(priorityQueue, (heuristic, leftNode, currNode[2] + [4]))   # 4=left
 
                 # Move to up if possible
                 if currNode[1][0] > 0 and arenaMap[currNode[1][0] - 1][currNode[1][1]] == 0:
                     upNode = [currNode[1][0] - 1, currNode[1][1]]
                     heuristic = len(currNode[2]) + heuristicFun(self, upNode, endNode)
-                    if len(currNode[2]) == 0 or currNode[2][-1] != 3:
+                    if tuple(upNode) not in visitedNodes:
                         heapq.heappush(priorityQueue, (heuristic, upNode, currNode[2] + [1]))   # 1=up
 
                 maxFringe = max(maxFringe, len(priorityQueue))
 
         # The code will complete the while loop only if no path to the destination exists
         # The '-1' in the returned values indicate no path was found
-        return [-1, [-1], nVisitedNode, maxFringe, time.time() - startTime]
+        return [-1, [-1], len(visitedNodes), maxFringe, time.time() - startTime]
 
     def euclideanDistance(self, src, dest):
         """
@@ -270,11 +252,23 @@ class GameMap:
         mazee.setup_maze(arenaMap)
         pass
 
+    def sketchMap(self,arenaMap):
+        print("#" * (len(arenaMap) + 2))
+        for row in arenaMap:
+            print("#", end="")
+            for cell in row:
+                print(cell, end="")
+            print("#")
 
-arenaMap = GameMap().genMapWithProb(4, 0.3)
+        print("#" * (len(arenaMap) + 2))
+
+
+arenaMap = GameMap().genMapWithProb(10, 0.2)
 # arenaMap = [[0,0,1,0],[0,0,1,0],[1,0,1,0],[0,1,0,0]]      # Negative Map
 # arenaMap = [[0,1,0,0],[0,0,0,1],[0,1,0,0],[0,0,0,0]]      # Positive Map
+# arenaMap = [[0,0,0,1,1],[1,0,0,0,1],[0,1,1,1,1],[0,0,0,0,0],[0,0,0,0,0]]    # Previously Failed Map
 GameMap().drawMap(arenaMap)
+# GameMap().sketchMap(arenaMap)
 
 print("Numbers in 'Path' indicate directions travelled\n1=Up,2=Right,3=Down,4=Left\n")
 
@@ -282,7 +276,7 @@ print("A* - Euclidean Distance")
 print("ShortestPath: {0[0]}  Path: {0[1]}\nNodesVisited: {0[2]}  MaxFringe: {0[3]}  Time: {0[4]}s".format(SearchAlgorithms().AStar(arenaMap, SearchAlgorithms.euclideanDistance)))
 print("\nA* - Manhattan Distance")
 print("ShortestPath: {0[0]}  Path: {0[1]}\nNodesVisited: {0[2]}  MaxFringe: {0[3]}  Time: {0[4]}s".format(SearchAlgorithms().AStar(arenaMap, SearchAlgorithms.manhattanDistance)))
-
+# print("\nBreadth First Search")
 # print("ShortestPath: {0[0]}  Path: {0[1]}\nNodesVisited: {0[2]}  MaxFringe: {0[3]}  Time: {0[4]}s".format(SearchAlgorithms().BFS(arenaMap)))
 
 
