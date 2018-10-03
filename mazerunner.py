@@ -232,7 +232,7 @@ class SearchAlgorithms:
             [
                 int : shortest path length ; -1 if path not found,
                 List[int] : shortest path ; 1=Up,2=Right,3=Down,4=Left,
-                int : Number of Nodes visited,
+                List[List[int]] : Nodes visited,
                 int : Max fringe size
                 double: Time taken
             ]
@@ -241,7 +241,8 @@ class SearchAlgorithms:
         """
 
         startTime = time.time()
-        visitedNodes = set()
+        # visitedNodes = set()
+        visitedNodes = dict()
         maxFringe, pathLength = 0, 0
         path = []
 
@@ -253,44 +254,45 @@ class SearchAlgorithms:
 
         while len(priorityQueue) > 0:
             currNode = heapq.heappop(priorityQueue)
-            visitedNodes.add(tuple(currNode[1]))
+            visitedNodes[tuple(currNode[1])] = currNode[0]
             # print(currNode[1])
             if currNode[1][0] == len(arenaMap) - 1 and currNode[1][1] == len(arenaMap) - 1:
-                return [len(currNode[2]), currNode[2], len(visitedNodes), maxFringe, time.time() - startTime]
+                return [len(currNode[2]), currNode[2], visitedNodes, maxFringe, time.time() - startTime]
             else:
                 # Move to the right if possible
                 if currNode[1][1] < len(arenaMap) - 1 and arenaMap[currNode[1][0]][currNode[1][1] + 1] == 0:
                     rightNode = [currNode[1][0], currNode[1][1] + 1]
                     heuristic = len(currNode[2]) + heuristicFun(rightNode, endNode)
-                    if tuple(rightNode) not in visitedNodes:
+                    if tuple(rightNode) not in visitedNodes or (tuple(rightNode) in visitedNodes and visitedNodes[tuple(rightNode)] > heuristic):
+                        visitedNodes[tuple(rightNode)] = heuristic
                         heapq.heappush(priorityQueue, (heuristic, rightNode, currNode[2] + [2]))    # 2=right
 
                 # Move to down if possible
                 if currNode[1][0] < len(arenaMap) - 1 and arenaMap[currNode[1][0] + 1][currNode[1][1]] == 0:
                     downNode = [currNode[1][0] + 1, currNode[1][1]]
                     heuristic = len(currNode[2]) + heuristicFun(downNode,endNode)
-                    if tuple(downNode) not in visitedNodes:
+                    if tuple(downNode) not in visitedNodes or (tuple(downNode) not in visitedNodes and visitedNodes[tuple(downNode)] > heuristic):
                         heapq.heappush(priorityQueue, (heuristic, downNode, currNode[2] + [3]))   # 3=down
 
                 # Move to the left if possible
                 if currNode[1][1] > 0 and arenaMap[currNode[1][0]][currNode[1][1] - 1] == 0:
                     leftNode = [currNode[1][0], currNode[1][1] - 1]
                     heuristic = len(currNode[2]) + heuristicFun(leftNode,endNode)
-                    if tuple(leftNode) not in visitedNodes:
+                    if tuple(leftNode) not in visitedNodes or (tuple(leftNode) not in visitedNodes and visitedNodes[tuple(leftNode)] > heuristic):
                         heapq.heappush(priorityQueue, (heuristic, leftNode, currNode[2] + [4]))   # 4=left
 
                 # Move to up if possible
                 if currNode[1][0] > 0 and arenaMap[currNode[1][0] - 1][currNode[1][1]] == 0:
                     upNode = [currNode[1][0] - 1, currNode[1][1]]
                     heuristic = len(currNode[2]) + heuristicFun(upNode, endNode)
-                    if tuple(upNode) not in visitedNodes:
+                    if tuple(upNode) not in visitedNodes or (tuple(upNode) not in visitedNodes and visitedNodes[tuple(upNode)] > heuristic):
                         heapq.heappush(priorityQueue, (heuristic, upNode, currNode[2] + [1]))   # 1=up
 
                 maxFringe = max(maxFringe, len(priorityQueue))
 
         # The code will complete the while loop only if no path to the destination exists
         # The '-1' in the returned values indicate no path was found
-        return [-1, [-1], len(visitedNodes), maxFringe, time.time() - startTime]
+        return [-1, [-1], visitedNodes, maxFringe, time.time() - startTime]
 
     def euclideanDistance(self, src, dest):
         """

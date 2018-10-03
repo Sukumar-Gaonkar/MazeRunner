@@ -10,19 +10,23 @@ fileName = "results/profilerResults_" + time.strftime("%Y%m%d-%H%M%S") + ".csv"
 f = open(fileName, "a", 1)
 
 ############## Question 1 ##############
-f.write("Probability,MapSize,IterationNo,ShortestPath,NodesVisited,MaxFringe,Time\n")
-
+f.write("Algorithm;Probability;MapSize;IterationNo;ShortestPath;nNodesVisited;MaxFringe;Time;Path;ArenaMap,NodesVisited\n")
 
 for prob in [x/10 for x in range(1, 10)]:
-    for mapSize in range(5, 10):
+    for mapSize in range(20, 40):
         for iterNo in range(1, noOfIterations + 1):
             arenaMap = gameMap.genMapWithProb(mapSize, prob)
             print("Probability: {0}   Mapsize: {1}   Iteration : {2}".format(prob, mapSize, iterNo))
             print(gameMap.sketchMap(arenaMap))
             print()
-            shortestPathLength, path, nNodesVisited, maxFringeSize, time = algos.AStar(arenaMap, algos.euclideanDistance)
-            # f.write("Prob: {0}  Mapsize: {1}  Iter No : {2}\n".format(prob, mapSize, iterNo))
-            # f.write("ShortestPath: {0} NodesVisited: {1}  MaxFringe: {2}  Time: {3}s\n\n".format(shortestPathLength, nNodesVisited, maxFringeSize, time))
-            f.write("{0},{1},{2},{3},{4},{5},{6}\n".format(prob,mapSize,iterNo,shortestPathLength,nNodesVisited, maxFringeSize,str(time)))
+            shortestPathLength, path, nodesVisited, maxFringeSize, time = algos.AStar(arenaMap, algos.euclideanDistance)
+            f.write("{0};{1};{2};{3};{4};{5};{6};{7};{8};{9}\n".format("A*_Euclidean", prob, mapSize, iterNo,
+                                                                   shortestPathLength, len(nodesVisited), maxFringeSize,
+                                                                   str(time), path, arenaMap, nodesVisited))
 
+            shortestPathLength, path, nNodesVisited, maxFringeSize, time = algos.AStar(arenaMap,
+                                                                                       algos.manhattanDistance)
+            f.write("{0};{1};{2};{3};{4};{5};{6};{7};{8};{9}\n".format("A*_Manhattan", prob, mapSize, iterNo,
+                                                                   shortestPathLength, len(nodesVisited), maxFringeSize,
+                                                                   str(time), path, arenaMap, nodesVisited))
 print("Results stored in : " + fileName)
