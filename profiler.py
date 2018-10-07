@@ -18,7 +18,7 @@ shortestPathLength3=0
 shortestPathLength4=0
 shortestPathLength = 0
 
-for mapSize in range(450, 551, 20):
+for mapSize in range(200, 501, 100):
     if(shortestPathLength == -2):
                 break
     for prob in [x / 10 for x in range(1, 10)]:
@@ -32,18 +32,18 @@ for mapSize in range(450, 551, 20):
             shortestPathLength, path1, nNodesVisited1, maxFringeSize1, time1 = algos.AStar(arenaMap,
                                                                                            algos.euclideanDistance)
             # if (shortestPathLength != -2):
-            f.write("{0};{1};{2};{3};{4};{5};{6};{7};{8};{9}\n".format("A*_Euclidean", prob, mapSize, iterNo,
-                                                               shortestPathLength1, nNodesVisited1, maxFringeSize1,
-                                                               str(time1), path1, arenaMap))
+            f.write("{0};{1};{2};{3};{4};{5};{6};{7};{8}\n".format("A*_Euclidean", prob, mapSize, iterNo,
+                                                               shortestPathLength, nNodesVisited1, maxFringeSize1,
+                                                               str(time1), path1))
 
             
             # if(shortestPathLength2 != -2):
 
             shortestPathLength2, path2, nNodesVisited2, maxFringeSize2, time2 = algos.AStar(arenaMap,
                                                                            algos.manhattanDistance)
-            f.write("{0};{1};{2};{3};{4};{5};{6};{7};{8};{9}\n".format("A*_Manhattan", prob, mapSize, iterNo,
+            f.write("{0};{1};{2};{3};{4};{5};{6};{7};{8}\n".format("A*_Manhattan", prob, mapSize, iterNo,
                                                        shortestPathLength2, nNodesVisited2, maxFringeSize2,
-                                                       str(time2), path2, arenaMap))
+                                                       str(time2), path2))
             #
             # if(shortestPathLength3 != -2):
             #
