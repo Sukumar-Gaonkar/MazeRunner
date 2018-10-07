@@ -44,6 +44,8 @@ class SearchAlgorithms:
         visited[0][0] = 1
         stack.append([row, col])
         while stack:
+            if time.time() - startTime > 90:
+                return [-2, [-2], nVisitedNode, maxFringe, time.time() - startTime]
             x = stack.pop()
             # row, col = q.get()
             row = x[0]
@@ -154,6 +156,8 @@ class SearchAlgorithms:
         visited[0][0]=1
         q.put((row,col))
         while not q.empty():
+            if time.time() - startTime > 90:
+                return [-2, [-2], nVisitedNode, maxFringe, time.time() - startTime]
             row, col = q.get()
             if row==len(arenaMap)-1 and col==len(arenaMap)-1:
                 break
